@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.foodiee.dao.Food;
-import com.foodiee.repository.FoodRepository;
+import com.foodiee.dto.FoodDto;
+import com.foodiee.mapper.FoodMapper;
+import com.foodiee.service.FoodService;
+
 //@CrossOrigin(origins = "http://localhost:5173")
 @CrossOrigin("*")
 @RequestMapping("/food")
@@ -18,13 +21,15 @@ import com.foodiee.repository.FoodRepository;
 public class FoodController {
 	
 	@Autowired
-	FoodRepository foodRepo;
+	FoodService foodService;
 	
 	@GetMapping("/{type}")
-	List<Food> getFood(@PathVariable String type){
-		List<Food> foodItems = foodRepo.findByType(type);
+	List<FoodDto> getFood(@PathVariable String type){
+		List<Food> foodItems = foodService.getFoodByType(type);
 		
-		return foodItems;
+		List<FoodDto> foodItemsDto = foodItems.stream().map((food)->FoodMapper.mapToFoodDto(food)).toList();
+		
+		return foodItemsDto;
 	}
 	
 }

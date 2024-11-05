@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.foodiee.dao.Orders;import com.foodiee.repository.OrdersRepository;
+
+import com.foodiee.dto.OrdersDto;
+import com.foodiee.service.OrdersService;
 
 @CrossOrigin("*")
 @RequestMapping("/orders")
@@ -21,40 +23,40 @@ import com.foodiee.dao.Orders;import com.foodiee.repository.OrdersRepository;
 public class OrdersController {
 	
 	@Autowired
-	OrdersRepository ordersRepo;
+	OrdersService ordersService;
 	
 	@PostMapping("/insert")
-	public ResponseEntity<String> insertOrder(@RequestBody Orders order){
+	public ResponseEntity<String> insertOrder(@RequestBody OrdersDto orderData){
 		
-		ordersRepo.save(order);
+		ordersService.createOrder(orderData);
 		
-		return new ResponseEntity<>("Order inserted successfully."+order.getFooditem(),HttpStatus.OK);
+		return new ResponseEntity<>("Order inserted successfully."+orderData.getFooditem(),HttpStatus.OK);
 		
 	}
 	
 	@PostMapping("/insertAll")
-	public ResponseEntity<String> insertAllOrders(@RequestBody List<Orders> orders){
+	public ResponseEntity<String> insertAllOrders(@RequestBody List<OrdersDto> ordersDto){
 		
-		orders.stream().map((order)->ordersRepo.save(order)).toList();
+		ordersService.createOrders(ordersDto);
 		
 		return new ResponseEntity<>("Multiple orders inserted successfully.",HttpStatus.OK);
 	}
 	
 	@GetMapping("/get")
-	public ResponseEntity<List<Orders>> getOrders(){
+	public ResponseEntity<List<OrdersDto>> getOrders(){
 		
-		List<Orders> orders = ordersRepo.findAll();
+		List<OrdersDto> ordersDto = ordersService.getOrders();
 		
-		return new ResponseEntity<>(orders,HttpStatus.OK);
+		return new ResponseEntity<>(ordersDto,HttpStatus.OK);
 		
 	}
 	
 	@GetMapping("/getBy/{username}")
-	public ResponseEntity<List<Orders>> getOrders(@PathVariable String username){
+	public ResponseEntity<List<OrdersDto>> getOrders(@PathVariable String username){
 		
-		List<Orders> orders = ordersRepo.findByUsername(username);
+		List<OrdersDto> ordersDto = ordersService.getOrdersByUsername(username);
 		
-		return new ResponseEntity<>(orders,HttpStatus.OK);
+		return new ResponseEntity<>(ordersDto,HttpStatus.OK);
 		
 	}
 	

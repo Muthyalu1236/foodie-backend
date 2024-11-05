@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.foodiee.dao.User;
-import com.foodiee.repository.UserRepository;
+import com.foodiee.dto.UserDto;
+import com.foodiee.service.UserService;
 
 @CrossOrigin("*")
 @RequestMapping("/user")
@@ -19,7 +19,7 @@ import com.foodiee.repository.UserRepository;
 public class UserController {
 	
 	@Autowired
-	UserRepository userRepo;
+	UserService userService;
 	
 	@GetMapping("/")
 	public String check() {
@@ -27,25 +27,19 @@ public class UserController {
 	}
 	
 	@PostMapping("/insert")
-	public ResponseEntity<String> insertUser(@RequestBody User user){
-		userRepo.save(user);
+	public ResponseEntity<String> insertUser(@RequestBody UserDto userDto){
+		userService.createUser(userDto);
 		return new ResponseEntity<>("User registered.",HttpStatus.OK);
 	}
 	
 	@PostMapping("/validate")
-	public ResponseEntity<String> getPassword(@RequestBody User user){
+	public ResponseEntity<String> getPassword(@RequestBody UserDto userDto){
 		
-		User userExists = userRepo.findByEmail(user.getEmail());
-		
-		String password = null;
-		
-		if(userExists != null) {
-			password = userExists.getPassword();
-		}
+		String password = userService.getPasswordByEmail(userDto.getEmail());
 		
 		if(password == null) {
 			return new ResponseEntity<>("email",HttpStatus.OK);
-		} else if(user.getPassword().equals(password)) {
+		} else if(userDto.getPassword().equals(password)) {
 			return new ResponseEntity<>("granted",HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>("password",HttpStatus.OK);
@@ -54,9 +48,9 @@ public class UserController {
 	}
 	
 	@PostMapping("/isExcists")
-	public ResponseEntity<Boolean> eamilOrPhoneExcists(@RequestBody User user){
+	public ResponseEntity<Boolean> eamilOrPhoneExcists(@RequestBody UserDto userDto){
 		
-		Boolean isExcists = userRepo.existsByEmail(user.getEmail()) || userRepo.existsByPhone(user.getPhone());
+		Boolean isExcists = userService.existsByEmailOrPhone(userDto.getEmail(), userDto.getPhone());
 		
 		return new ResponseEntity<>(isExcists,HttpStatus.OK);
 	}
